@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!--
+        Customize this policy to fit your own app's needs. For more guidance, please refer to the docs:
+            https://cordova.apache.org/docs/en/latest/
+        Some notes:
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+
+    <!-- <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; script-src 'self' 'unsafe-eval' https://cdn.tailwindcss.com/"> -->
+
+    <!-- <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"> -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <title>Notifier</title>
+    <script src="https://cdn.tailwindcss.com/"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+              .input_des {
+                content-visibility: auto;
+                padding: 0.5rem;
+              }
+            }
+          </style>
+</head>
+
+<body>
+
+    <div class="flex flex-row m-auto justify-center items-center bg-[#0f172a] p-2 text-white h-screen overflow-scroll
+            w-full">
+
+        <div id="candlesMatching" onclick="closePopup()"
+            class="bg-black/50 h-screen w-full flex flex-row justify-center items-center"
+            style="z-index: 9999; display:none ; position:fixed;">
+
+            <div>
+                <div class=" bg-white p-8 text-black rounded-xl ">
+                    <span onclick="closePopup()" class="font-bold bg-black text-white p-2 rounded object-left">X</span>
+                    <div class="text-center">
+                        <p class="text-[24px] font-bold" id="priceFound">58</p>
+                        <p>matching open price found</p>
+
+                        <button class="bg-success">view</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <div class="p-5 w-[600px] max-w-[600px] h-full">
+
+
+            <p class="text-[24px] mb-5 md:text-[40px] text-center font-bold">AzinoFx Notifier</p>
+            <div class="bg-white/20 text-white m-5 p-3 font-bold rounded-2xl ">
+                <p>Current Price: <span id="currentCandle"></span></p>
+                <p>Pair: <span class="" style="text-transform: uppercase;" id="currentPair"></span></p>
+                <p>Timeframe: <span class="" id="currentTimeFrame"></span></p>
+                <p>Bars: <span class="" id="currentBars"></span></p>
+            </div>
+            <div class="bg-white/20 p-10 rounded-2xl space-y-10">
+                <div id="actionView" style="border-radius: 50%; height: 150px; width: 150px;"
+                    class="flex flex-row relative justify-center items-center m-auto mb-10">
+                    <div style="display: block;" id="startView">
+                        <div onclick="startSocket()" class="bg-[#25b09b] pulsing rounded-full mb-3 h-[150px] w-[150px]">
+                        </div>
+                        <p onclick="startSocket()" class="font-bold text-center text-[24px]"
+                            style="z-index: 999; cursor: pointer;">
+                            Start</p>
+                    </div>
+                    <div style="display: none;" id="stopView">
+                        <div onclick="stopSocket()" class="loader mb-3 h-[150px] w-[150px]"></div>
+                        <p onclick="stopSocket()" class="font-bold text-center text-red-400 text-[24px]"
+                            style="z-index: 999; cursor: pointer;">
+                            Stop</p>
+                    </div>
+
+                </div>
+
+                <div id="settingsBlock" style="display: none;">
+                    <div class="mb-3">
+                        <label for="" class="pb-4 font-bold">Kindly select the pair</label>
+                        <select id="pair" class="w-full p-8 rounded mt-3 text-black  input_des">
+                            <option value="btcusd">BTCUSDT</option>
+                            <option value="ethusd">ETHUSDT</option>
+                            <option value="eurusd">EURUSD</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="" class="pb-4 font-bold">Kindly select the time frame</label>
+                        <select id="timeframe" class="w-full p-8 rounded mt-3 text-black  input_des">
+                            <option value="1">1mins</option>
+                            <option value="3">3mins</option>
+                            <option value="5">5mins</option>
+                            <option value="15">15mins</option>
+                            <option value="30">30mins</option>
+                            <option value="60">1Hr</option>
+
+
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="" class="pb-4 font-bold">Kindly select number of candles</label>
+                        <select id="no_of_bars" class="w-full p-8 rounded mt-3 text-black  input_des">
+                            <option value="150">150</option>
+                            <option value="300">300</option>
+                            <option value="1000">1000</option>
+                        </select>
+                    </div>
+                    <button onclick="trackValues()" type="button"
+                        class="w-full p-3 rounded mt-3 font-bold text-[16px] text-white bg-[#0f172a]">Save</button>
+                </div>
+
+
+
+                <!-- <div class="bg-white/50 rounded-2xl mt-10 justify-center flex flex-row ">
+                        <button onclick="showSettings()" class="p-3 bg-green/50">Settings</button>
+                    </div> -->
+            </div>
+
+
+
+        </div>
+
+        <div class="bg-white text-black bottom-0 px-4 w-full flex flex-row justify-center rounded items-center m-auto"
+            style="position: fixed; list-style: none; ">
+
+            <div class="flex p-2 flex-row w-full items-center justify-center gap-8 ">
+                <li class="border-e-4 px-5 basis-1/2" onclick="showRecentAlarm()">
+                    Notifications
+                </li>
+                <li onclick="showSettings()" class="basis-1/2 p-2 text-center" onclick="">
+                    Settings
+                </li>
+            </div>
+        </div>
+
+        <div id="recentAlarm" onclick="closeRecentAlarm()" class="h-screen w-full text-black bg-black/50 fixed left-0"
+            style="display:none; position:fixed; list-style:none;">
+            <audio id="myAudio" src="audiotwo.mp3" style="visibility: hidden;" loop></audio>
+
+            <div class="bg-white w-9/12  p-3 h-screen ">
+                <div class="flex flex-row justify-center items-center gap-3">
+                    <span onclick="closeRecentAlarm()"
+                        class="font-bold bg-black text-white p-2 rounded object-center">X</span>
+                    <button onclick="localStorage.removeItem('notifications'); loadNotifications(); "
+                        class="bg-[#25b09b] p-2 rounded text-white font-bold w-full ">Clear All</button>
+                </div>
+
+                <div id="alarmHolder" class="pt-3 h-[700px] overflow-scroll">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div id="matches" style="position: fixed; display: none;" onclick="closeMatches()"
+            class="flex flex-row justify-center items-center p-2 h-screen w-full text-black bg-black/50">
+            <div class="bg-white w-full rounded p-4 space-y-2">
+                <p class="text-center">Matching Candles</p>
+                <div id="candleHolder" class="overflow-scroll max-h-[400px] space-y-2">
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="cordova.js"></script>
+    <script src="js/index.js"></script>
+
+</body>
+
+</html>
