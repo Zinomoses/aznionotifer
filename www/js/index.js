@@ -87,6 +87,14 @@ async function updateSettings() {
         return false;
     }
 
+    let timeCon = timeframe * 60;
+    let bars = no_of_bars;
+    fetch(`https://ytechno.com.ng/cronScript/?pair=${pair}&timeframe=${timeCon}&limit=${bars}`)
+        .then((response) => response.json())
+        .then((result) => { })
+        .catch((error) => console.error(error));
+
+
     document.getElementById('currentPair').innerText = pair;
     document.getElementById('currentTimeFrame').innerText = timeframe == "60" ? "1 Hr" : timeframe + " mins";
     document.getElementById('currentBars').innerText = no_of_bars;
@@ -156,10 +164,6 @@ async function startLoader() {
 
     let timeCon = min * 60;
 
-    fetch(`https://ytechno.com.ng/cronScript/?pair=${pairs}&timeframe=${timeCon}&limit=${bars}`)
-        .then((response) => response.json())
-        .then((result) => { })
-        .catch((error) => console.error(error));
 
 
     let url_bitstamp = `https://www.bitstamp.net/api/v2/ohlc/${pairs}/?step=${timeCon}&limit=${bars}`;
@@ -338,7 +342,7 @@ function openMatches(index) {
     let html = "";
     for (const data of notifications[index].matchesData) {
         html += ` <div class="bg-black/20 p-1 rounded text-dark ">
-                        <p class="font-bold">Candle Position: ${new Date(data.item.timestamp * 1000).toLocaleTimeString()}</p>
+                        <p class="font-bold">Candle Position: ${new Date(data.item.timestamp * 1000).toLocaleDateString()}</p>
                         <div class="grid grid-cols-2">
                         <p>Open: ${data.item.open}</p>
                         <p>High: ${data.item.high}</p>
